@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class FractionableInvHandler implements InvocationHandler {
     private Object obj;
@@ -35,19 +36,6 @@ public class FractionableInvHandler implements InvocationHandler {
 
         Annotation[] anns = m.getDeclaredAnnotations();
         if (m.isAnnotationPresent(Cache.class)) {
-            /*if (modCount>0){
-                //Вызываем метод
-                System.out.println("Not cached val:");
-                cachedVal = method.invoke(obj, args);
-                //Обнуляем счетчик кэша
-                modCount=0;
-                return cachedVal;
-            }
-            else{
-                //Берем значение из кэша
-                System.out.println("Cached val:");
-                return cachedVal;
-            }*/
             Result res = curStateResults.get(m); //пытаемся прочитать кеш
             long time = m.getAnnotation(Cache.class).time(); //читаем время жизни
             if (res != null)
@@ -58,17 +46,18 @@ public class FractionableInvHandler implements InvocationHandler {
                 curStateResults.put(m, res); //обновляем в кеше
                 return res.value;
             }
+
             objectResult = method.invoke(obj, args); //вызывам сам метод
             //сохраняем результат с указанием времени жизни
             res = new Result(System.currentTimeMillis() + time, objectResult);
             if (time == 0) res.ttl = 0L; //если хотим бессрочно
             curStateResults.put(m, res); //добавляем в кеш
+            //Делаем искусственную задержку - для UnitTest
+            //TimeUnit.SECONDS.sleep(1);
+
             return objectResult; //возвращаем результат
         }
         if (m.isAnnotationPresent(Mutator.class)) {
-            /*modCount++;
-            System.out.println("Not cached val from mutator");
-            return method.invoke(obj, args);*/
             //добавляем новое состояние
             curState = new State(curState, m, args);
             if (states.containsKey(curState)) {

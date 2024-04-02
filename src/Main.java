@@ -17,5 +17,26 @@ public class Main {
         ((Fractionable)pr).setNum(16);
         ((Fractionable)pr).doubleValue();//sout сработал
         ((Fractionable)pr).doubleValue();//sout молчит
+
+        ((Fractionable)pr).setNum(100);
+        System.out.println("---------------------");
+        long lStartTime = System.nanoTime();
+        //task
+        ((Fractionable)pr).doubleValue();//sout сработал
+        //end
+        long lEndTime = System.nanoTime();
+        //time elapsed
+        long output = lEndTime - lStartTime;
+        System.out.println("Elapsed time for Envoked: " + output);
+
+        long lStartTime1 = System.nanoTime();
+        //task
+        ((Fractionable)pr).doubleValue();//sout молчит
+        //end
+        long lEndTime1 = System.nanoTime();
+        //time elapsed
+        long output1 = lEndTime1 - lStartTime1;
+        System.out.println("Elapsed time for Cached: " + output );
+
     }
 }
